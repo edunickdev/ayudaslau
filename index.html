@@ -2,512 +2,591 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registro Rápido de Conducta</title>
-    <!-- Tailwind CSS para los estilos -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Protocolo de Registro Rápido</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+      :root {
+        --primary: #6366f1;
+        --secondary: #4f46e5;
+        --bg: #f8fafc;
+        --card: #ffffff;
+      }
+
       body {
-        font-family: "Inter", sans-serif;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: var(--bg);
+        color: #1e293b;
+        -webkit-tap-highlight-color: transparent;
       }
-      .transition-all {
-        transition: all 0.2s ease-in-out;
+
+      .glass {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
       }
-      [x-cloak] {
-        display: none !important;
+
+      .btn-option {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .btn-option:active {
+        transform: scale(0.95);
+      }
+
+      .active-option {
+        background-color: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+      }
+
+      .freq-btn {
+        transition: all 0.15s ease;
+      }
+
+      .freq-btn:active {
+        background-color: #e2e8f0;
+        transform: scale(0.9);
+      }
+
+      /* Custom animations */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in {
+        animation: slideUp 0.4s ease-out forwards;
+      }
+
+      /* Hide scrollbar */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* Layout optimization for desktop */
+      @media (min-width: 768px) {
+        .main-container {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2.5rem;
+          align-items: start;
+        }
+        .submit-bar {
+          position: relative;
+          background: transparent;
+          padding: 0;
+          margin-top: 2rem;
+          grid-column: span 2;
+        }
+        .full-width-section {
+          grid-column: span 2;
+        }
       }
     </style>
   </head>
-  <body class="min-h-screen bg-gray-50 text-gray-800 p-2 pb-20 sm:p-6">
-    <!-- Encabezado -->
-    <header class="max-w-md mx-auto mb-6 mt-4 text-center">
-      <h1
-        class="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2"
-      >
-        <i data-lucide="activity" class="text-blue-600"></i>
-        Registro Rápido
-      </h1>
-      <p class="text-sm text-gray-500 mt-1">Captura de conducta inmediata</p>
+  <body
+    class="safe-top safe-bottom min-h-screen flex flex-col items-center pb-12"
+  >
+    <!-- Hero / Header -->
+    <header class="w-full max-w-5xl px-6 pt-10 pb-10 md:pt-16 md:pb-12">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1
+            class="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900"
+          >
+            Registro
+          </h1>
+          <p class="text-slate-500 font-medium md:text-lg">
+            Captura inmediata de conducta
+          </p>
+        </div>
+        <div
+          class="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-indigo-50 flex items-center justify-center"
+        >
+          <i
+            data-lucide="zap"
+            class="text-indigo-600 w-6 h-6 md:w-8 md:h-8"
+          ></i>
+        </div>
+      </div>
     </header>
 
-    <main
-      class="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all"
-    >
-      <!-- Toggle Historial / Registro -->
-      <div class="flex border-b border-gray-100">
-        <button
-          id="btn-nuevo"
-          class="flex-1 py-3 text-sm font-medium transition-colors text-blue-600 border-b-2 border-blue-600 bg-blue-50/30"
+    <main class="w-full max-w-5xl px-6 animate-fade-in">
+      <div class="main-container">
+        <!-- Izquierda: Datos -->
+        <div class="space-y-8">
+          <!-- Seccion Conducta -->
+          <section class="space-y-3">
+            <label
+              class="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1"
+              >Conducta Observada</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="input-conducta"
+                value="Rasguñarse los dedos"
+                class="w-full bg-white border border-slate-200 rounded-3xl px-6 py-5 text-lg font-semibold shadow-sm focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
+              />
+            </div>
+          </section>
+
+          <!-- Seccion Antecedente -->
+          <section class="space-y-4">
+            <label
+              class="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1"
+              >Antecedente (Disparador)</label
+            >
+            <div
+              id="grid-antecedentes"
+              class="grid grid-cols-2 lg:grid-cols-3 gap-3"
+            >
+              <!-- Dinámico -->
+            </div>
+            <input
+              type="text"
+              id="input-otro-antecedente"
+              placeholder="Especifique el antecedente..."
+              class="hidden w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 border-dashed"
+            />
+          </section>
+
+          <!-- Seccion Duracion -->
+          <section class="space-y-4">
+            <label
+              class="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1"
+              >Duración del Episodio</label
+            >
+            <div id="grid-tiempos" class="grid grid-cols-2 gap-3">
+              <!-- Dinámico -->
+            </div>
+          </section>
+
+          <!-- Seccion Frecuencia Compacta -->
+          <section
+            class="flex items-center justify-between gap-4 bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm"
+          >
+            <div class="flex flex-col">
+              <span
+                class="text-xs font-bold uppercase tracking-widest text-slate-400"
+                >Frecuencia</span
+              >
+              <span class="text-sm text-slate-500 font-medium"
+                >Repeticiones</span
+              >
+            </div>
+            <div class="flex items-center gap-6">
+              <button
+                id="btn-minus"
+                class="freq-btn w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 text-slate-600 hover:bg-white transition-all"
+              >
+                <i data-lucide="minus"></i>
+              </button>
+              <span
+                id="display-frecuencia"
+                class="text-4xl md:text-5xl font-black text-slate-800 tabular-nums"
+                >1</span
+              >
+              <button
+                id="btn-plus"
+                class="freq-btn w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 text-slate-600 hover:bg-white transition-all"
+              >
+                <i data-lucide="plus"></i>
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <!-- Derecha: Foto -->
+        <div class="space-y-8 mt-8 md:mt-0">
+          <section class="space-y-4">
+            <label
+              class="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1"
+              >Evidencia & IA</label
+            >
+
+            <input
+              type="file"
+              id="input-foto"
+              accept="image/*"
+              capture="environment"
+              class="hidden"
+            />
+
+            <div
+              id="foto-container"
+              onclick="document.getElementById('input-foto').click()"
+              class="relative w-full aspect-square md:aspect-[4/3] bg-white border-2 border-dashed border-slate-200 rounded-[3rem] flex flex-col items-center justify-center overflow-hidden transition-all hover:border-indigo-300 hover:bg-indigo-50/10 group cursor-pointer shadow-sm"
+            >
+              <!-- Placeholder State -->
+              <div id="foto-empty" class="flex flex-col items-center gap-4">
+                <div
+                  class="w-20 h-20 bg-indigo-50 rounded-[2rem] flex items-center justify-center text-indigo-500 group-hover:bg-indigo-100 transition-colors"
+                >
+                  <i data-lucide="camera" size="32"></i>
+                </div>
+                <div class="text-center p-4">
+                  <p class="font-bold text-slate-700 text-lg">
+                    Subir o Capturar Foto
+                  </p>
+                  <p class="text-sm text-slate-400 max-w-[200px]">
+                    La IA analizará automáticamente si existe alguna lesión
+                  </p>
+                </div>
+              </div>
+
+              <!-- Preview State -->
+              <img
+                id="preview-img"
+                class="hidden absolute inset-0 w-full h-full object-cover"
+              />
+
+              <div id="foto-overlay" class="hidden absolute top-6 right-6 z-10">
+                <button
+                  onclick="
+                    event.stopPropagation();
+                    quitarFoto();
+                  "
+                  class="w-12 h-12 bg-white shadow-xl rounded-2xl flex items-center justify-center text-rose-500 hover:bg-rose-50 transition-colors"
+                >
+                  <i data-lucide="x" size="20"></i>
+                </button>
+              </div>
+
+              <div id="foto-status" class="hidden absolute bottom-8 inset-x-8">
+                <div
+                  class="glass py-3 px-6 rounded-2xl flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-widest text-indigo-600 border border-indigo-100 shadow-xl"
+                >
+                  <i data-lucide="check" size="14"></i>
+                  <span>Evidencia Lista</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Boton Enviar -->
+        <div
+          class="fixed bottom-0 left-0 right-0 p-6 md:static md:p-0 md:mt-10 submit-bar bg-gradient-to-t from-slate-50 md:from-transparent pointer-events-none md:pointer-events-auto"
         >
-          Nuevo Registro
-        </button>
-        <button
-          id="btn-historial"
-          class="flex-1 py-3 text-sm font-medium transition-colors text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2"
-        >
-          <i data-lucide="history" size="16"></i>
-          Historial
-          <span
-            id="count-badge"
-            class="bg-gray-100 px-2 py-0.5 rounded-full text-xs"
-            >0</span
-          >
-        </button>
-      </div>
-
-      <!-- VISTA FORMULARIO -->
-      <div id="view-form" class="p-5 sm:p-6 space-y-6">
-        <!-- 1. Conducta -->
-        <section>
-          <label
-            class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
-          >
-            <i data-lucide="activity" size="16" class="text-gray-400"></i>
-            Conducta
-          </label>
-          <input
-            type="text"
-            id="input-conducta"
-            value="Rasguñarse los dedos"
-            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-gray-700"
-          />
-        </section>
-
-        <!-- 2. Antecedente -->
-        <section>
-          <label
-            class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
-          >
-            <i data-lucide="alert-circle" size="16" class="text-gray-400"></i>
-            Antecedente
-            <span class="text-xs font-normal text-gray-400"
-              >(¿Qué pasó antes?)</span
-            >
-          </label>
-          <div id="grid-antecedentes" class="flex flex-wrap gap-2">
-            <!-- Botones inyectados por JS -->
-          </div>
-
-          <input
-            type="text"
-            id="input-otro-antecedente"
-            placeholder="Escribe el antecedente aquí..."
-            class="hidden w-full mt-3 bg-white border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
-          />
-        </section>
-
-        <!-- 3. Tiempo de Duración -->
-        <section>
-          <label
-            class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
-          >
-            <i data-lucide="clock" size="16" class="text-gray-400"></i>
-            Tiempo de duración
-          </label>
-          <div id="grid-tiempos" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <!-- Botones inyectados por JS -->
-          </div>
-        </section>
-
-        <!-- 4. Frecuencia -->
-        <section>
-          <label
-            class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
-          >
-            <i data-lucide="hash" size="16" class="text-gray-400"></i>
-            Frecuencia
-            <span class="text-xs font-normal text-gray-400"
-              >(Veces en este episodio)</span
-            >
-          </label>
-          <div
-            class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl p-2"
-          >
-            <button
-              id="btn-minus"
-              class="w-12 h-12 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 active:bg-gray-200 text-xl font-bold shadow-sm"
-            >
-              -
-            </button>
-            <span
-              id="display-frecuencia"
-              class="text-3xl font-bold text-gray-800 w-16 text-center"
-              >1</span
-            >
-            <button
-              id="btn-plus"
-              class="w-12 h-12 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 active:bg-gray-200 text-xl font-bold shadow-sm"
-            >
-              +
-            </button>
-          </div>
-        </section>
-
-        <!-- Botón Guardar -->
-        <div class="pt-4">
           <button
             id="btn-guardar"
-            class="w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-200 active:scale-[0.98]"
+            class="pointer-events-auto w-full max-w-md md:max-w-none mx-auto py-6 rounded-[2.5rem] bg-slate-900 text-white font-bold text-xl flex items-center justify-center gap-4 shadow-2xl shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50"
           >
-            <i data-lucide="save" id="icon-save" size="20"></i>
-            <span id="text-save">Guardar Registro</span>
+            <i data-lucide="send" id="icon-save" size="24"></i>
+            <span id="text-save">Enviar Registro al Cloud</span>
           </button>
-        </div>
-      </div>
-
-      <!-- VISTA HISTORIAL -->
-      <div id="view-history" class="hidden p-0 bg-gray-50 min-h-[400px]">
-        <div
-          id="history-header"
-          class="flex justify-between items-center p-3 border-b border-gray-200 bg-white"
-        >
-          <button
-            id="btn-exportar"
-            class="text-xs text-green-700 flex items-center gap-1 px-3 py-2 hover:bg-green-50 rounded-md transition font-semibold border border-green-200 shadow-sm"
-          >
-            <i data-lucide="download" size="14"></i> Exportar a Excel
-          </button>
-          <button
-            id="btn-limpiar"
-            class="text-xs text-red-500 flex items-center gap-1 px-2 py-2 hover:bg-red-50 rounded-md transition"
-          >
-            <i data-lucide="trash-2" size="14"></i> Borrar Todo
-          </button>
-        </div>
-
-        <div
-          id="empty-state"
-          class="flex flex-col items-center justify-center h-64 text-gray-400 px-6 text-center"
-        >
-          <i data-lucide="activity" size="48" class="mb-4 opacity-20"></i>
-          <p>No hay registros aún.</p>
-          <p class="text-sm mt-1">Tus capturas aparecerán aquí.</p>
-        </div>
-
-        <div id="list-registros" class="divide-y divide-gray-100 bg-white">
-          <!-- Registros inyectados por JS -->
         </div>
       </div>
     </main>
 
     <script>
-      // --- CONFIGURACIÓN ---
+      // ============================================================
+      // CONFIGURACIÓN
+      // ============================================================
       const GOOGLE_SCRIPT_URL =
         "https://script.google.com/macros/s/AKfycbxa43UT868Pah4wWH4miBZzObcONUOTbt5QvQs6omy3wAmloHhZLdEl_PZ8s0JWSb8f0Q/exec";
+      const GEMINI_API_KEY = "AIzaSyBD1sfquk403twOccyoE_fncAFF5kuGWzk";
+      const GEMINI_MODEL = "gemini-3-flash-preview";
 
-      // --- ESTADO ---
-      let registros =
-        JSON.parse(localStorage.getItem("registrosConducta")) || [];
+      // ============================================================
+      // ESTADO
+      // ============================================================
       let antecedenteSeleccionado = "";
       let tiempoSeleccionado = "";
       let frecuencia = 1;
+      let selectedFile = null;
 
       const opcionesAntecedentes = [
         "Ansiedad",
         "Aburrimiento",
         "Estrés",
-        "Viendo TV",
-        "Trabajando/Estudiando",
         "Otro",
       ];
       const opcionesTiempo = ["< 1 min", "1 - 3 min", "3 - 5 min", "> 5 min"];
 
-      // --- SELECTORES ---
-      const btnNuevo = document.getElementById("btn-nuevo");
-      const btnHistorial = document.getElementById("btn-historial");
-      const viewForm = document.getElementById("view-form");
-      const viewHistory = document.getElementById("view-history");
+      // ============================================================
+      // SELECTORES
+      // ============================================================
       const gridAntecedentes = document.getElementById("grid-antecedentes");
       const gridTiempos = document.getElementById("grid-tiempos");
       const inputOtro = document.getElementById("input-otro-antecedente");
       const displayFrecuencia = document.getElementById("display-frecuencia");
-      const countBadge = document.getElementById("count-badge");
-      const listRegistros = document.getElementById("list-registros");
-      const emptyState = document.getElementById("empty-state");
       const btnGuardar = document.getElementById("btn-guardar");
-      const iconSave = document.getElementById("icon-save");
       const textSave = document.getElementById("text-save");
+      const inputFoto = document.getElementById("input-foto");
+      const fotoEmpty = document.getElementById("foto-empty");
+      const fotoOverlay = document.getElementById("foto-overlay");
+      const fotoStatus = document.getElementById("foto-status");
+      const previewImg = document.getElementById("preview-img");
 
-      // --- INICIALIZACIÓN ---
+      // ============================================================
+      // INICIALIZACIÓN
+      // ============================================================
       function init() {
         renderOptions();
-        renderHistory();
-        lucide.createIcons(); // Inicializa los iconos de Lucide
+        lucide.createIcons();
       }
 
-      // Renderizar opciones de botones
       function renderOptions() {
-        // Antecedentes
         gridAntecedentes.innerHTML = opcionesAntecedentes
           .map(
-            (opc) => `
-                <button type="button" onclick="seleccionarAntecedente('${opc}')" data-ant="${opc}"
-                    class="btn-ant px-3 py-2 rounded-lg text-sm border transition-all bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50">
-                    ${opc}
-                </button>
-            `,
+            (val) => `
+          <button type="button" onclick="seleccionarAntecedente('${val}')" class="btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white border border-slate-200 text-sm md:text-base font-semibold text-slate-600 shadow-sm" data-val="${val}">
+            ${val}
+          </button>
+        `,
           )
           .join("");
 
-        // Tiempos
         gridTiempos.innerHTML = opcionesTiempo
           .map(
-            (t) => `
-                <button type="button" onclick="seleccionarTiempo('${t}')" data-time="${t}"
-                    class="btn-time px-2 py-3 rounded-lg text-sm font-medium border transition-all bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50">
-                    ${t}
-                </button>
-            `,
+            (val) => `
+          <button type="button" onclick="seleccionarTiempo('${val}')" class="btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white border border-slate-200 text-sm md:text-base font-semibold text-slate-600 shadow-sm" data-val="${val}">
+            ${val}
+          </button>
+        `,
           )
           .join("");
       }
-
-      // --- LÓGICA DE UI ---
-      btnNuevo.onclick = () => {
-        viewForm.classList.remove("hidden");
-        viewHistory.classList.add("hidden");
-        btnNuevo.className =
-          "flex-1 py-3 text-sm font-medium transition-colors text-blue-600 border-b-2 border-blue-600 bg-blue-50/30";
-        btnHistorial.className =
-          "flex-1 py-3 text-sm font-medium transition-colors text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2";
-      };
-
-      btnHistorial.onclick = () => {
-        viewForm.classList.add("hidden");
-        viewHistory.classList.remove("hidden");
-        btnHistorial.className =
-          "flex-1 py-3 text-sm font-medium transition-colors text-blue-600 border-b-2 border-blue-600 bg-blue-50/30 flex items-center justify-center gap-2";
-        btnNuevo.className =
-          "flex-1 py-3 text-sm font-medium transition-colors text-gray-500 hover:bg-gray-50";
-        renderHistory();
-      };
 
       window.seleccionarAntecedente = (val) => {
         antecedenteSeleccionado = val;
-        document.querySelectorAll(".btn-ant").forEach((btn) => {
-          const isActive = btn.getAttribute("data-ant") === val;
-          btn.className = `btn-ant px-3 py-2 rounded-lg text-sm border transition-all ${
-            isActive
-              ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-200"
-              : "bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50"
-          }`;
-        });
+        document
+          .querySelectorAll("#grid-antecedentes .btn-option")
+          .forEach((btn) => {
+            btn.className = `btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl border text-sm md:text-base font-semibold shadow-sm ${btn.dataset.val === val ? "active-option" : "bg-white border-slate-200 text-slate-600"}`;
+          });
         inputOtro.classList.toggle("hidden", val !== "Otro");
         if (val === "Otro") inputOtro.focus();
       };
 
       window.seleccionarTiempo = (val) => {
         tiempoSeleccionado = val;
-        document.querySelectorAll(".btn-time").forEach((btn) => {
-          const isActive = btn.getAttribute("data-time") === val;
-          btn.className = `btn-time px-2 py-3 rounded-lg text-sm font-medium border transition-all ${
-            isActive
-              ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
-              : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50"
-          }`;
-        });
+        document
+          .querySelectorAll("#grid-tiempos .btn-option")
+          .forEach((btn) => {
+            btn.className = `btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl border text-sm md:text-base font-semibold shadow-sm ${btn.dataset.val === val ? "active-option" : "bg-white border-slate-200 text-slate-600"}`;
+          });
       };
 
       document.getElementById("btn-plus").onclick = () => {
         frecuencia++;
-        displayFrecuencia.innerText = frecuencia;
+        updateFreq();
       };
-
       document.getElementById("btn-minus").onclick = () => {
         if (frecuencia > 1) frecuencia--;
+        updateFreq();
+      };
+      function updateFreq() {
         displayFrecuencia.innerText = frecuencia;
+      }
+
+      // ============================================================
+      // MANEJO DE FOTO
+      // ============================================================
+      inputFoto.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        selectedFile = file;
+        previewImg.src = URL.createObjectURL(file);
+        previewImg.classList.remove("hidden");
+        fotoEmpty.classList.add("hidden");
+        fotoOverlay.classList.remove("hidden");
+        fotoStatus.classList.remove("hidden");
       };
 
-      // --- ACCIONES ---
+      window.quitarFoto = () => {
+        selectedFile = null;
+        previewImg.classList.add("hidden");
+        fotoEmpty.classList.remove("hidden");
+        fotoOverlay.classList.add("hidden");
+        fotoStatus.classList.add("hidden");
+        inputFoto.value = "";
+      };
+
+      // ============================================================
+      // IA: FILES API (PROTOCOLO OFICIAL)
+      // ============================================================
+      async function analizarConGemini(file, conducta) {
+        try {
+          console.log("Iniciando subida:", file.name, file.size, file.type);
+
+          // 1. Iniciar sesión resumable
+          const startRes = await fetch(
+            `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${GEMINI_API_KEY}`,
+            {
+              method: "POST",
+              headers: {
+                "X-Goog-Upload-Protocol": "resumable",
+                "X-Goog-Upload-Command": "start",
+                "X-Goog-Upload-Header-Content-Length": file.size,
+                "X-Goog-Upload-Header-Content-Type": file.type,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                file: { display_name: "reg_" + Date.now() },
+              }),
+            },
+          );
+
+          if (!startRes.ok) {
+            const err = await startRes.text();
+            throw new Error(`Paso 1 falló: ${startRes.status} 
+ ${err}`);
+          }
+
+          const uploadUrl = startRes.headers.get("x-goog-upload-url");
+          if (!uploadUrl) throw new Error("No se obtuvo URL de subida");
+
+          // 2. Subir el archivo
+          console.log("Subiendo archivo a:", uploadUrl);
+          const uploadRes = await fetch(uploadUrl, {
+            method: "POST",
+            headers: {
+              "X-Goog-Upload-Command": "upload, finalize",
+              "X-Goog-Upload-Offset": "0",
+            },
+            body: file,
+          });
+
+          if (!uploadRes.ok) {
+            const err = await uploadRes.text();
+            throw new Error(`Paso 2 (SUBIDA) falló: ${uploadRes.status} 
+ ${err}`);
+          }
+
+          const fileInfo = await uploadRes.json();
+          console.log("Archivo en la nube:", fileInfo.file.uri);
+
+          // 3. Análisis
+          const analysisRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [
+                      {
+                        text: `Analiza si hay una lesión física visible en esta imagen relacionada con la conducta: '${conducta}'. Responde solo SÍ o NO seguido de una breve razón.`,
+                      },
+                      {
+                        file_data: {
+                          mime_type: file.type,
+                          file_uri: fileInfo.file.uri,
+                        },
+                      },
+                    ],
+                  },
+                ],
+                generationConfig: { temperature: 0 },
+              }),
+            },
+          );
+
+          if (!analysisRes.ok) {
+            const err = await analysisRes.text();
+            throw new Error(`Paso 3 (Análisis) falló: ${analysisRes.status} 
+ ${err}`);
+          }
+
+          const data = await analysisRes.json();
+          const resText = data.candidates[0].content.parts[0].text.trim();
+          console.log("Respuesta completa de IA:", resText);
+
+          return resText.toLowerCase().includes("sí") ||
+            resText.toLowerCase().includes("si")
+            ? "Sí"
+            : "No";
+        } catch (e) {
+          console.error("DEBUG ERROR IA:", e);
+          return "ERROR: " + e.message;
+        }
+      }
+
+      // ============================================================
+      // GUARDAR
+      // ============================================================
       btnGuardar.onclick = async () => {
         const conducta = document.getElementById("input-conducta").value;
-        const antFinal =
+        const ant =
           antecedenteSeleccionado === "Otro"
             ? inputOtro.value
             : antecedenteSeleccionado;
 
-        if (!antFinal) return alert("Selecciona un antecedente");
-        if (!tiempoSeleccionado) return alert("Selecciona la duración");
-
-        // UI Loading
-        btnGuardar.disabled = true;
-        textSave.innerText = "Enviando...";
-        btnGuardar.className =
-          "w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all bg-blue-400 text-white cursor-wait";
-
-        const fechaActual = new Date().toLocaleString("es-ES", {
-          day: "2-digit",
-          month: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-
-        const nuevoRegistro = {
-          id: Date.now(),
-          fecha: fechaActual,
-          conducta,
-          antecedente: antFinal,
-          tiempo: tiempoSeleccionado,
-          frecuencia,
-        };
-
-        try {
-          // Enviar a Google Sheets
-          if (GOOGLE_SCRIPT_URL.includes("/exec")) {
-            const formData = new URLSearchParams();
-            formData.append("fecha", nuevoRegistro.fecha);
-            formData.append("conducta", nuevoRegistro.conducta);
-            formData.append("antecedente", nuevoRegistro.antecedente);
-            formData.append("tiempo", nuevoRegistro.tiempo);
-            formData.append("frecuencia", nuevoRegistro.frecuencia);
-
-            console.log(formData);
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-              method: "POST",
-              body: formData,
-              mode: "no-cors",
-            });
-            console.log(response);
-          } else {
-            console.warn(
-              "Falta configurar una URL válida de Google Apps Script terminada en /exec",
-            );
-          }
-
-          // Guardar local
-          registros = [nuevoRegistro, ...registros];
-          localStorage.setItem("registrosConducta", JSON.stringify(registros));
-
-          // Éxito UI
-          textSave.innerText = "¡Guardado!";
-          btnGuardar.className =
-            "w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all bg-green-500 text-white shadow-lg shadow-green-200";
-
-          setTimeout(() => {
-            resetForm();
-          }, 2000);
-        } catch (error) {
-          console.error(error);
-          alert("Error al guardar en la nube, se guardó localmente.");
-          registros = [nuevoRegistro, ...registros];
-          localStorage.setItem("registrosConducta", JSON.stringify(registros));
-          resetForm();
-        }
-      };
-
-      function resetForm() {
-        btnGuardar.disabled = false;
-        textSave.innerText = "Guardar Registro";
-        btnGuardar.className =
-          "w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-200";
-
-        frecuencia = 1;
-        displayFrecuencia.innerText = "1";
-        antecedenteSeleccionado = "";
-        tiempoSeleccionado = "";
-        inputOtro.value = "";
-        inputOtro.classList.add("hidden");
-        renderOptions();
-        renderHistory();
-      }
-
-      function renderHistory() {
-        countBadge.innerText = registros.length;
-
-        if (registros.length === 0) {
-          emptyState.classList.remove("hidden");
-          listRegistros.innerHTML = "";
-          document.getElementById("history-header").classList.add("hidden");
-          return;
-        }
-
-        emptyState.classList.add("hidden");
-        document.getElementById("history-header").classList.remove("hidden");
-
-        listRegistros.innerHTML = registros
-          .map(
-            (reg) => `
-                <div class="p-4 bg-white hover:bg-gray-50 transition-colors">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                            ${reg.fecha}
-                        </span>
-                        <div class="flex items-center text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full gap-1">
-                            <i data-lucide="hash" size="12"></i> ${reg.frecuencia} ${reg.frecuencia === 1 ? "vez" : "veces"}
-                        </div>
-                    </div>
-                    <h3 class="font-semibold text-gray-800 mb-1">${reg.conducta}</h3>
-                    <div class="grid grid-cols-2 gap-2 mt-3">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Antecedente</span>
-                            <span class="text-sm text-gray-700 flex items-center gap-1 mt-0.5">
-                                <i data-lucide="alert-circle" size="12" class="text-gray-400"></i>
-                                ${reg.antecedente}
-                            </span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Duración</span>
-                            <span class="text-sm text-gray-700 flex items-center gap-1 mt-0.5">
-                                <i data-lucide="clock" size="12" class="text-gray-400"></i>
-                                ${reg.tiempo}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `,
-          )
-          .join("");
-        lucide.createIcons();
-      }
-
-      document.getElementById("btn-limpiar").onclick = () => {
-        if (confirm("¿Seguro que quieres borrar todo?")) {
-          registros = [];
-          localStorage.removeItem("registrosConducta");
-          renderHistory();
-        }
-      };
-
-      document.getElementById("btn-exportar").onclick = () => {
-        if (registros.length === 0) return alert("No hay datos");
-
-        const cabeceras = [
-          "Fecha",
-          "Conducta",
-          "Antecedente",
-          "Duracion",
-          "Frecuencia",
-        ];
-        const filas = registros.map((reg) => [
-          `"${reg.fecha}"`,
-          `"${reg.conducta}"`,
-          `"${reg.antecedente}"`,
-          `"${reg.tiempo}"`,
-          reg.frecuencia,
-        ]);
-
-        const contenidoCSV =
-          "\uFEFF" +
-          [cabeceras.join(","), ...filas.map((fila) => fila.join(","))].join(
-            "\n",
+        if (!conducta || !ant || !tiempoSeleccionado)
+          return alert(
+            "Datos incompletos. Por favor selecciona antecedente y tiempo.",
           );
 
-        const blob = new Blob([contenidoCSV], {
-          type: "text/csv;charset=utf-8;",
+        btnGuardar.disabled = true;
+        textSave.innerText = "Procesando en la Nube...";
+
+        const fechaAuto = new Date().toLocaleString("es-CO", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
         });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute(
-          "download",
-          `Registros_Conducta_${new Date().toISOString().split("T")[0]}.csv`,
-        );
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+
+        try {
+          let lesion = selectedFile
+            ? await analizarConGemini(selectedFile, conducta)
+            : "Sin foto";
+
+          // SI HAY ERROR EN IA, NO REFRESCAR PARA PODER VER CONSOLA
+          if (lesion.startsWith("ERROR")) {
+            alert(
+              "❌ FALLÓ EL PROCESO DE IA:\n" +
+                lesion +
+                "\n\nRevisa la consola (F12) para más detalles.",
+            );
+            btnGuardar.disabled = false;
+            textSave.innerText = "Reintentar Envío";
+            return;
+          }
+
+          const params = new URLSearchParams();
+          params.append("fecha", fechaAuto);
+          params.append("conducta", conducta);
+          params.append("antecedente", ant);
+          params.append("tiempo", tiempoSeleccionado);
+          params.append("frecuencia", frecuencia);
+          params.append("lesion", lesion);
+
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: params,
+            mode: "no-cors",
+          });
+
+          textSave.innerText = "¡Registro Guardado!";
+          btnGuardar.classList.replace("bg-slate-900", "bg-emerald-500");
+          setTimeout(() => location.reload(), 1500);
+        } catch (e) {
+          alert("Error crítico de sistema: " + e.message);
+          btnGuardar.disabled = false;
+          textSave.innerText = "Reintentar";
+        }
       };
 
       init();
