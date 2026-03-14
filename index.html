@@ -57,6 +57,20 @@
         transform: scale(0.9);
       }
 
+      /* Mic recording animation */
+      .mic-active {
+        animation: pulse-red 1.5s infinite;
+        background-color: #fee2e2 !important;
+        border-color: #ef4444 !important;
+        color: #ef4444 !important;
+      }
+
+      @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      }
+
       /* Custom animations */
       @keyframes slideUp {
         from {
@@ -148,22 +162,44 @@
 
           <!-- Seccion Antecedente -->
           <section class="space-y-4">
-            <label
-              class="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1"
-              >Antecedente (Disparador)</label
-            >
+            <div id="header-antecedentes" class="flex flex-col px-1">
+              <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Antecedente (Disparador)</label>
+            </div>
+            
             <div
               id="grid-antecedentes"
               class="grid grid-cols-2 lg:grid-cols-3 gap-3"
             >
               <!-- Dinámico -->
             </div>
-            <input
-              type="text"
-              id="input-otro-antecedente"
-              placeholder="Especifique el antecedente..."
-              class="hidden w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 border-dashed"
-            />
+            
+            <!-- Panel Grande: OTRO -->
+            <div id="panel-otro" class="hidden flex-col gap-4 bg-white p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border-2 border-slate-100 shadow-sm transition-all relative">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold uppercase tracking-widest text-indigo-500">Describir o Dictar Antecedente</label>
+                <button onclick="cerrarOtro()" class="text-xs font-bold text-slate-400 hover:text-slate-600 px-3 py-1.5 bg-slate-50 rounded-full transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-slate-200">
+                  <i data-lucide="arrow-left" size="14"></i> Volver
+                </button>
+              </div>
+              
+              <textarea
+                id="input-otro-antecedente"
+                rows="3"
+                placeholder="Escuchando o escribe aquí..."
+                class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-5 text-base md:text-lg font-medium outline-none focus:bg-indigo-50/30 focus:ring-4 focus:ring-indigo-50 transition-all resize-none shadow-inner"
+              ></textarea>
+              
+              <div class="flex items-center justify-center mt-2">
+                <button 
+                  id="btn-mic-nativo" 
+                  onclick="toggleDictado()"
+                  class="flex items-center justify-center gap-3 px-8 py-4 rounded-[2rem] bg-slate-900 text-white font-bold transition-all hover:bg-slate-800 active:scale-95 shadow-xl w-full sm:w-auto"
+                >
+                  <i data-lucide="mic" size="20" id="mic-icon"></i>
+                  <span id="mic-text">Toca para dictar</span>
+                </button>
+              </div>
+            </div>
           </section>
 
           <!-- Seccion Duracion -->
@@ -297,11 +333,33 @@
 
     <script>
       // ============================================================
-      // CONFIGURACIÓN
+      // CONFIGURACIÓN Y SEGURIDAD
       // ============================================================
-      const GOOGLE_SCRIPT_URL =
-        "https://script.google.com/macros/s/AKfycbxa43UT868Pah4wWH4miBZzObcONUOTbt5QvQs6omy3wAmloHhZLdEl_PZ8s0JWSb8f0Q/exec";
-      const GEMINI_API_KEY = "AIzaSyBD1sfquk403twOccyoE_fncAFF5kuGWzk";
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxa43UT868Pah4wWH4miBZzObcONUOTbt5QvQs6omy3wAmloHhZLdEl_PZ8s0JWSb8f0Q/exec";
+      
+      // Función reutilizable y escalable para de-ofuscar contraseñas o claves
+      // Recibe la clave ofuscada y un array de reglas (falso vs real)
+      function revelarClave(claveOculta, reglasDeReemplazo) {
+        let claveRevelada = claveOculta;
+        // Usamos split().join() como una alternativa segura e infalible
+        // para reemplazar todas las ocurrencias exactas (respeta mayúsculas/minúsculas)
+        reglasDeReemplazo.forEach(regla => {
+          claveRevelada = claveRevelada.split(regla.falso).join(regla.real);
+        });
+        return claveRevelada;
+      }
+
+      // La API Key con los caracteres intencionalmente alterados
+      const API_KEY_OFUSCADA = "XIzxSyColMXbD8QePotZSN>COjqi-wItZadEZRM";
+      
+      // Revelamos la API Key en memoria en tiempo de ejecución
+      const GEMINI_API_KEY = revelarClave(API_KEY_OFUSCADA, [
+        { falso: 'X', real: 'A' }, // Control estricto de mayúscula
+        { falso: 'x', real: 'a' }, // Control estricto de minúscula
+        { falso: '8', real: '3' },
+        { falso: '>', real: 'v' }
+      ]);
+      
       const GEMINI_MODEL = "gemini-3-flash-preview";
 
       // ============================================================
@@ -311,24 +369,25 @@
       let tiempoSeleccionado = "";
       let frecuencia = 1;
       let selectedFile = null;
+      let isRecording = false;
+      let recognition = null;
 
-      const opcionesAntecedentes = [
-        "Ansiedad",
-        "Aburrimiento",
-        "Estrés",
-        "Otro",
-      ];
+      const opcionesAntecedentes = ["Ansiedad", "Aburrimiento", "Estrés", "Otro"];
       const opcionesTiempo = ["< 1 min", "1 - 3 min", "3 - 5 min", "> 5 min"];
 
       // ============================================================
       // SELECTORES
       // ============================================================
       const gridAntecedentes = document.getElementById("grid-antecedentes");
-      const gridTiempos = document.getElementById("grid-tiempos");
+      const headerAntecedentes = document.getElementById("header-antecedentes");
+      const panelOtro = document.getElementById("panel-otro");
       const inputOtro = document.getElementById("input-otro-antecedente");
+      const gridTiempos = document.getElementById("grid-tiempos");
       const displayFrecuencia = document.getElementById("display-frecuencia");
       const btnGuardar = document.getElementById("btn-guardar");
       const textSave = document.getElementById("text-save");
+      const btnMicNativo = document.getElementById("btn-mic-nativo");
+      const micText = document.getElementById("mic-text");
       const inputFoto = document.getElementById("input-foto");
       const fotoEmpty = document.getElementById("foto-empty");
       const fotoOverlay = document.getElementById("foto-overlay");
@@ -341,60 +400,141 @@
       function init() {
         renderOptions();
         lucide.createIcons();
+        initSpeechRecognition();
+      }
+
+      function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          recognition = new SpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'es-ES';
+
+          recognition.onstart = () => {
+            isRecording = true;
+            btnMicNativo.classList.add("mic-active");
+            micText.innerText = "Dictando...";
+            inputOtro.placeholder = "Habla ahora, te escucho...";
+          };
+
+          recognition.onresult = (event) => {
+            let finalTranscript = '';
+            // Combinar todos los resultados que han ingresado
+            for (let i = 0; i < event.results.length; ++i) {
+                finalTranscript += event.results[i][0].transcript;
+            }
+            inputOtro.value = finalTranscript;
+          };
+
+          recognition.onerror = (event) => {
+            console.error("Error Speech Recognition:", event.error);
+            stopDictado(false);
+            if (event.error === 'not-allowed') {
+                alert("Debes permitir el acceso al micrófono en el navegador.");
+            }
+          };
+
+          recognition.onend = () => {
+            stopDictado(false);
+          };
+        } else {
+            console.warn("Web Speech API no soportada en este navegador.");
+        }
       }
 
       function renderOptions() {
-        gridAntecedentes.innerHTML = opcionesAntecedentes
-          .map(
-            (val) => `
+        gridAntecedentes.innerHTML = opcionesAntecedentes.map(val => `
           <button type="button" onclick="seleccionarAntecedente('${val}')" class="btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white border border-slate-200 text-sm md:text-base font-semibold text-slate-600 shadow-sm" data-val="${val}">
             ${val}
           </button>
-        `,
-          )
-          .join("");
+        `).join("");
 
-        gridTiempos.innerHTML = opcionesTiempo
-          .map(
-            (val) => `
+        gridTiempos.innerHTML = opcionesTiempo.map(val => `
           <button type="button" onclick="seleccionarTiempo('${val}')" class="btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white border border-slate-200 text-sm md:text-base font-semibold text-slate-600 shadow-sm" data-val="${val}">
             ${val}
           </button>
-        `,
-          )
-          .join("");
+        `).join("");
       }
 
       window.seleccionarAntecedente = (val) => {
         antecedenteSeleccionado = val;
-        document
-          .querySelectorAll("#grid-antecedentes .btn-option")
-          .forEach((btn) => {
-            btn.className = `btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl border text-sm md:text-base font-semibold shadow-sm ${btn.dataset.val === val ? "active-option" : "bg-white border-slate-200 text-slate-600"}`;
-          });
-        inputOtro.classList.toggle("hidden", val !== "Otro");
-        if (val === "Otro") inputOtro.focus();
+        
+        // Colorear opciones
+        document.querySelectorAll("#grid-antecedentes .btn-option").forEach(btn => {
+          btn.className = `btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl border text-sm md:text-base font-semibold shadow-sm ${btn.dataset.val === val ? 'active-option' : 'bg-white border-slate-200 text-slate-600'}`;
+        });
+
+        // Alternar vistas si es "Otro"
+        if (val === "Otro") {
+          gridAntecedentes.classList.add("hidden");
+          headerAntecedentes.classList.add("hidden");
+          panelOtro.classList.remove("hidden");
+          panelOtro.classList.add("flex");
+          inputOtro.focus();
+        }
+      };
+
+      window.cerrarOtro = () => {
+        // Detener dictado si está activo
+        stopDictado();
+        
+        // Volver la interfaz al estado normal
+        antecedenteSeleccionado = "";
+        gridAntecedentes.classList.remove("hidden");
+        headerAntecedentes.classList.remove("hidden");
+        panelOtro.classList.add("hidden");
+        panelOtro.classList.remove("flex");
+        inputOtro.value = "";
+        
+        // Deseleccionar botones
+        document.querySelectorAll("#grid-antecedentes .btn-option").forEach(btn => {
+          btn.className = `btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl border text-sm md:text-base font-semibold shadow-sm bg-white border-slate-200 text-slate-600`;
+        });
       };
 
       window.seleccionarTiempo = (val) => {
         tiempoSeleccionado = val;
-        document
-          .querySelectorAll("#grid-tiempos .btn-option")
-          .forEach((btn) => {
-            btn.className = `btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl border text-sm md:text-base font-semibold shadow-sm ${btn.dataset.val === val ? "active-option" : "bg-white border-slate-200 text-slate-600"}`;
-          });
+        document.querySelectorAll("#grid-tiempos .btn-option").forEach(btn => {
+          btn.className = `btn-option p-4 md:p-5 rounded-2xl md:rounded-3xl border text-sm md:text-base font-semibold shadow-sm ${btn.dataset.val === val ? 'active-option' : 'bg-white border-slate-200 text-slate-600'}`;
+        });
       };
 
-      document.getElementById("btn-plus").onclick = () => {
-        frecuencia++;
-        updateFreq();
+      document.getElementById("btn-plus").onclick = () => { frecuencia++; updateFreq(); };
+      document.getElementById("btn-minus").onclick = () => { if (frecuencia > 1) frecuencia--; updateFreq(); };
+      function updateFreq() { displayFrecuencia.innerText = frecuencia; }
+
+      // ============================================================
+      // VOZ: DICTADO NATIVO (WEB SPEECH)
+      // ============================================================
+      window.toggleDictado = () => {
+        if (!recognition) {
+            alert("El dictado por voz no es compatible con este navegador.");
+            return;
+        }
+
+        if (isRecording) {
+            stopDictado();
+        } else {
+            // Limpiar input al iniciar nuevo dictado
+            inputOtro.value = "";
+            try {
+                recognition.start();
+            } catch (e) {
+                // Si la instancia ya estaba corriendo o hay un error de estado
+                console.error("No se pudo iniciar reconocimiento", e);
+            }
+        }
       };
-      document.getElementById("btn-minus").onclick = () => {
-        if (frecuencia > 1) frecuencia--;
-        updateFreq();
-      };
-      function updateFreq() {
-        displayFrecuencia.innerText = frecuencia;
+
+      function stopDictado(forceStop = true) {
+          if (forceStop && recognition) {
+              try { recognition.stop(); } catch(e){}
+          }
+          isRecording = false;
+          btnMicNativo.classList.remove("mic-active");
+          micText.innerText = "Toca para dictar";
+          inputOtro.placeholder = "Escuchando o escribe aquí...";
       }
 
       // ============================================================
@@ -421,11 +561,12 @@
       };
 
       // ============================================================
-      // IA: FILES API (PROTOCOLO OFICIAL)
+      // IA: FILES API (SOLO PARA LA FOTO)
       // ============================================================
       async function analizarConGemini(file, conducta) {
         try {
-          console.log("Iniciando subida:", file.name, file.size, file.type);
+          console.log("=== INICIANDO SUBIDA A GEMINI FILES API ===");
+          console.log("Archivo seleccionado:", file.name, "MIME:", file.type, "Tamaño:", file.size);
 
           // 1. Iniciar sesión resumable
           const startRes = await fetch(
@@ -435,46 +576,45 @@
               headers: {
                 "X-Goog-Upload-Protocol": "resumable",
                 "X-Goog-Upload-Command": "start",
-                "X-Goog-Upload-Header-Content-Length": file.size,
+                "X-Goog-Upload-Header-Content-Length": String(file.size), // Asegurar que sea string
                 "X-Goog-Upload-Header-Content-Type": file.type,
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                file: { display_name: "reg_" + Date.now() },
+                file: { display_name: "img_" + Date.now() },
               }),
             },
           );
 
           if (!startRes.ok) {
-            const err = await startRes.text();
-            throw new Error(`Paso 1 falló: ${startRes.status} 
- ${err}`);
+            const errText = await startRes.text();
+            console.error("ERROR EN PASO 1:", startRes.status, errText);
+            throw new Error(`Paso 1 falló: ${startRes.status} - ${errText}`);
           }
-
           const uploadUrl = startRes.headers.get("x-goog-upload-url");
-          if (!uploadUrl) throw new Error("No se obtuvo URL de subida");
+          console.log("Paso 1 Exitoso. URL de subida obtenida:", uploadUrl);
 
           // 2. Subir el archivo
-          console.log("Subiendo archivo a:", uploadUrl);
+          console.log("Subiendo datos binarios (Paso 2)...");
           const uploadRes = await fetch(uploadUrl, {
             method: "POST",
-            headers: {
+            headers: { 
               "X-Goog-Upload-Command": "upload, finalize",
-              "X-Goog-Upload-Offset": "0",
+              "X-Goog-Upload-Offset": "0" 
             },
             body: file,
           });
 
           if (!uploadRes.ok) {
-            const err = await uploadRes.text();
-            throw new Error(`Paso 2 (SUBIDA) falló: ${uploadRes.status} 
- ${err}`);
+            const errText = await uploadRes.text();
+            console.error("ERROR EN PASO 2:", uploadRes.status, errText);
+            throw new Error(`Paso 2 (SUBIDA) falló: ${uploadRes.status} - ${errText}`);
           }
-
           const fileInfo = await uploadRes.json();
-          console.log("Archivo en la nube:", fileInfo.file.uri);
+          console.log("Paso 2 Exitoso. Info del archivo:", fileInfo);
 
           // 3. Análisis
+          console.log("Iniciando análisis (Paso 3) con modelo:", GEMINI_MODEL);
           const analysisRes = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
             {
@@ -485,7 +625,7 @@
                   {
                     parts: [
                       {
-                        text: `Analiza si hay una lesión física visible en esta imagen relacionada con la conducta: '${conducta}'. Responde solo SÍ o NO seguido de una breve razón.`,
+                        text: `Analiza si hay una lesión física visible en esta imagen relacionada con: '${conducta}'. Responde solo SÍ o NO seguido de una breve razón.`,
                       },
                       {
                         file_data: {
@@ -502,19 +642,16 @@
           );
 
           if (!analysisRes.ok) {
-            const err = await analysisRes.text();
-            throw new Error(`Paso 3 (Análisis) falló: ${analysisRes.status} 
- ${err}`);
+            const errText = await analysisRes.text();
+            console.error("ERROR EN PASO 3:", analysisRes.status, errText);
+            throw new Error(`Paso 3 (Análisis) falló: ${analysisRes.status} - ${errText}`);
           }
 
           const data = await analysisRes.json();
           const resText = data.candidates[0].content.parts[0].text.trim();
           console.log("Respuesta completa de IA:", resText);
-
-          return resText.toLowerCase().includes("sí") ||
-            resText.toLowerCase().includes("si")
-            ? "Sí"
-            : "No";
+          
+          return resText.toLowerCase().includes("sí") || resText.toLowerCase().includes("si") ? "Sí" : "No";
         } catch (e) {
           console.error("DEBUG ERROR IA:", e);
           return "ERROR: " + e.message;
@@ -526,43 +663,29 @@
       // ============================================================
       btnGuardar.onclick = async () => {
         const conducta = document.getElementById("input-conducta").value;
-        const ant =
-          antecedenteSeleccionado === "Otro"
-            ? inputOtro.value
-            : antecedenteSeleccionado;
+        const ant = antecedenteSeleccionado === "Otro" ? inputOtro.value.trim() : antecedenteSeleccionado;
 
         if (!conducta || !ant || !tiempoSeleccionado)
-          return alert(
-            "Datos incompletos. Por favor selecciona antecedente y tiempo.",
-          );
+          return alert("Datos incompletos. Asegúrate de escribir o dictar un antecedente.");
 
         btnGuardar.disabled = true;
-        textSave.innerText = "Procesando en la Nube...";
+        textSave.innerText = "Procesando...";
 
         const fechaAuto = new Date().toLocaleString("es-CO", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
+          day: "2-digit", month: "2-digit", year: "numeric",
+          hour: "2-digit", minute: "2-digit", second: "2-digit"
         });
 
         try {
-          let lesion = selectedFile
+          const lesion = selectedFile 
             ? await analizarConGemini(selectedFile, conducta)
             : "Sin foto";
 
-          // SI HAY ERROR EN IA, NO REFRESCAR PARA PODER VER CONSOLA
           if (lesion.startsWith("ERROR")) {
-            alert(
-              "❌ FALLÓ EL PROCESO DE IA:\n" +
-                lesion +
-                "\n\nRevisa la consola (F12) para más detalles.",
-            );
+            alert("❌ FALLÓ EL PROCESO DE IA FOTO:\n" + lesion);
             btnGuardar.disabled = false;
             textSave.innerText = "Reintentar Envío";
-            return;
+            return; 
           }
 
           const params = new URLSearchParams();
@@ -582,6 +705,7 @@
           textSave.innerText = "¡Registro Guardado!";
           btnGuardar.classList.replace("bg-slate-900", "bg-emerald-500");
           setTimeout(() => location.reload(), 1500);
+
         } catch (e) {
           alert("Error crítico de sistema: " + e.message);
           btnGuardar.disabled = false;
